@@ -1,3 +1,22 @@
+/*
+ * Licensed to Elasticsearch B.V. under one or more contributor
+ * license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright
+ * ownership. Elasticsearch B.V. licenses this file to you under
+ * the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 import React, { Component } from 'react';
 import {
   EuiCodeEditor,
@@ -11,7 +30,7 @@ import {
   EuiOverlayMask,
   EuiFormRow,
   EuiFieldText,
-  EuiSpacer
+  EuiSpacer,
 } from '@elastic/eui';
 import 'brace/mode/yaml';
 import 'brace/theme/github';
@@ -31,7 +50,7 @@ export default class Editor extends Component {
       saving: false,
       testing: false,
       testResponse: null,
-      testFailed: null
+      testFailed: null,
     };
   }
 
@@ -49,16 +68,12 @@ export default class Editor extends Component {
 
     httpClient
       .post(`../api/elastalert/rules/${ruleID}`, {
-        yaml: this.state.value
+        yaml: this.state.value,
       })
       .then(resp => {
         if (resp.status === 200) {
           this.setState({ saving: false });
-          addToast(
-            'Saved successfully',
-            `Rule '${ruleID}' was saved successfully`,
-            'success'
-          );
+          addToast('Saved successfully', `Rule '${ruleID}' was saved successfully`, 'success');
           this.closeModal();
           loadRules();
         }
@@ -80,13 +95,13 @@ export default class Editor extends Component {
     httpClient
       .post(`../api/elastalert/test`, {
         rule: this.state.value,
-        testType: 'schemaOnly'
+        testType: 'schemaOnly',
       })
       .then(resp => {
         this.setState({
           testing: false,
           testFailed: false,
-          testResponse: resp.data
+          testResponse: resp.data ? resp.data : resp,
         });
       })
       .catch(e => {
@@ -149,15 +164,12 @@ export default class Editor extends Component {
                 setOptions={{
                   fontSize: '14px',
                   enableBasicAutocompletion: true,
-                  enableLiveAutocompletion: true
+                  enableLiveAutocompletion: true,
                 }}
               />
               <EuiSpacer size="m" />
               {this.state.testResponse && (
-                <Console
-                  hasError={this.state.testFailed}
-                  consoleOutput={this.state.testResponse}
-                />
+                <Console hasError={this.state.testFailed} consoleOutput={this.state.testResponse} />
               )}
             </EuiModalBody>
             <EuiModalFooter>
@@ -165,11 +177,7 @@ export default class Editor extends Component {
               <EuiButton onClick={this.testRule} isLoading={this.state.testing}>
                 {this.state.testing ? 'Testing..' : 'Test'}
               </EuiButton>
-              <EuiButton
-                fill
-                onClick={this.saveRule}
-                isLoading={this.state.saving}
-              >
+              <EuiButton fill onClick={this.saveRule} isLoading={this.state.saving}>
                 {this.state.saving ? 'Saving..' : 'Save'}
               </EuiButton>
             </EuiModalFooter>
@@ -179,10 +187,7 @@ export default class Editor extends Component {
     }
     return (
       <div>
-        <EuiButton
-          onClick={this.showModal}
-          fill={this.props.editorMode === 'edit' ? false : true}
-        >
+        <EuiButton onClick={this.showModal} fill={this.props.editorMode === 'edit' ? false : true}>
           {this.props.editorMode === 'edit' ? 'Edit rule' : 'Create rule'}
         </EuiButton>
         {modal}

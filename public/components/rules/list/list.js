@@ -1,3 +1,22 @@
+/*
+ * Licensed to Elasticsearch B.V. under one or more contributor
+ * license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright
+ * ownership. Elasticsearch B.V. licenses this file to you under
+ * the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 import React, { Component } from 'react';
 import {
   EuiFlexGrid,
@@ -11,7 +30,7 @@ import {
   EuiButtonIcon,
   EuiLoadingSpinner,
   EuiCallOut,
-  EuiSpacer
+  EuiSpacer,
 } from '@elastic/eui';
 import { Item } from './item';
 import { Editor } from '../editor';
@@ -33,7 +52,7 @@ export default class List extends Component {
       rules: [],
       selectedRules: [],
       error: null,
-      loading: false
+      loading: false,
     };
 
     loadRulesHandler = this.loadRules;
@@ -42,7 +61,7 @@ export default class List extends Component {
   selectRule = (rule, active) => {
     if (active) {
       this.setState({
-        selectedRules: [...this.state.selectedRules, rule]
+        selectedRules: [...this.state.selectedRules, rule],
       });
     } else {
       const copy = [...this.state.selectedRules];
@@ -107,32 +126,49 @@ export default class List extends Component {
             <EuiFlexGroup gutterSize="s" alignItems="center">
               {!this.state.error && (
                 <EuiFlexItem>
-                  <Editor
-                    httpClient={this.props.httpClient}
-                    editorMode="create"
-                  />
+                  <Editor httpClient={this.props.httpClient} editorMode="create" />
                 </EuiFlexItem>
               )}
               {this.state.selectedRules.length > 0 && (
                 <EuiFlexItem>
                   <Dangerous
-                    buttonText={'Delete ' + (this.state.selectedRules.length === 1 ? 'rule' : this.state.selectedRules.length + ' rules')}
+                    buttonText={
+                      'Delete ' +
+                      (this.state.selectedRules.length === 1
+                        ? 'rule'
+                        : this.state.selectedRules.length + ' rules')
+                    }
                     title="Delete rule"
-                    text={'You are about to delete ' + (this.state.selectedRules.length === 1 ? 'a rule' : this.state.selectedRules.length + ' rules')}
-                    action={(modal) => deleteRule(this.props.httpClient, this.state.selectedRules,
-                      () => {
-                        modal.closeDestroyModal();
-                        addToast(
-                          'Deleted successfully',
-                          `${this.state.selectedRules.length} rule${this.state.selectedRules.length > 1 ? 's were' : ' was'} successfully deleted`,
-                          'success'
-                        );
-                        loadRules();
-                      },
-                      (e) => {
-                        modal.closeDestroyModal();
-                        addToast('Deleting failed', `Rule could not be deleted: (${e.status}) ${e.statusText}`, 'danger');
-                      })
+                    text={
+                      'You are about to delete ' +
+                      (this.state.selectedRules.length === 1
+                        ? 'a rule'
+                        : this.state.selectedRules.length + ' rules')
+                    }
+                    action={modal =>
+                      deleteRule(
+                        this.props.httpClient,
+                        this.state.selectedRules,
+                        () => {
+                          modal.closeDestroyModal();
+                          addToast(
+                            'Deleted successfully',
+                            `${this.state.selectedRules.length} rule${
+                              this.state.selectedRules.length > 1 ? 's were' : ' was'
+                            } successfully deleted`,
+                            'success'
+                          );
+                          loadRules();
+                        },
+                        e => {
+                          modal.closeDestroyModal();
+                          addToast(
+                            'Deleting failed',
+                            `Rule could not be deleted: (${e.status}) ${e.statusText}`,
+                            'danger'
+                          );
+                        }
+                      )
                     }
                   />
                 </EuiFlexItem>
@@ -147,13 +183,15 @@ export default class List extends Component {
                 </EuiFlexItem>
               )}
               <EuiFlexItem>
-                {!this.state.loading && <EuiButtonIcon
-                  size="s"
-                  color="primary"
-                  onClick={() => this.loadRules()}
-                  iconType="refresh"
-                  aria-label="Refresh"
-                />}
+                {!this.state.loading && (
+                  <EuiButtonIcon
+                    size="s"
+                    color="primary"
+                    onClick={() => this.loadRules()}
+                    iconType="refresh"
+                    aria-label="Refresh"
+                  />
+                )}
                 {this.state.loading && <EuiLoadingSpinner size="l" />}
               </EuiFlexItem>
             </EuiFlexGroup>
@@ -161,14 +199,10 @@ export default class List extends Component {
         </EuiPageContentHeader>
         <EuiPageContentBody>
           <EuiFlexGrid>{renderList()}</EuiFlexGrid>
-          {(!this.state.loading && !this.state.error && this.state.rules.length === 0) && (
+          {!this.state.loading && !this.state.error && this.state.rules.length === 0 && (
             <React.Fragment>
               <EuiSpacer />
-              <EuiCallOut
-                title="No existing rules"
-                color="warning"
-                iconType="help"
-              >
+              <EuiCallOut title="No existing rules" color="warning" iconType="help">
                 No rules were found.
               </EuiCallOut>
             </React.Fragment>
